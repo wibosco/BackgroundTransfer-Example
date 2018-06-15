@@ -59,16 +59,17 @@ class GalleryAssetDataManager {
         
         downloader.download(remoteLocation: asset.url, localStorageLocation: asset.cachedLocalAssetURL()) { (result) in
             switch result {
-            case .success(let data):
-                guard let image = UIImage(data: data) else {
-                    completionHandler(.failure(APIError.invalidData))
-                    return
-                }
-                
+            case .success(let url):
+                var retrievedData: Data? = nil
                 do {
-                    try data.write(to: asset.cachedLocalAssetURL(), options: .atomic)
+                    retrievedData = try Data(contentsOf: url)
                 } catch {
                     completionHandler(.failure(APIError.invalidData))
+                }
+                
+                guard let imageData = retrievedData, let image = UIImage(data: imageData) else {
+                    completionHandler(.failure(APIError.invalidData))
+                    return
                 }
                 
                 let loadResult = LoadAssetResult(asset: asset, image: image)

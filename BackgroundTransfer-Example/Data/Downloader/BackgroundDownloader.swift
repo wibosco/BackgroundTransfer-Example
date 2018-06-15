@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<Data>) -> Void)
+typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<URL>) -> Void)
 
 class BackgroundDownloader: NSObject {
     
@@ -69,13 +69,11 @@ extension BackgroundDownloader: URLSessionDownloadDelegate {
                 foregroundCompletionHandler?(.failure(APIError.invalidData))
                 return
             }
-            
             print("Completing download of: \(backgroundDownloadItem.remoteLocation)")
 
-            let data = try Data(contentsOf: location)
             try fileManager.moveItem(at: location, to: backgroundDownloadItem.localStorageLocation)
             
-            foregroundCompletionHandler?(.success(data))
+            foregroundCompletionHandler?(.success(backgroundDownloadItem.localStorageLocation))
         } catch {
             foregroundCompletionHandler?(.failure(APIError.invalidData))
         }
