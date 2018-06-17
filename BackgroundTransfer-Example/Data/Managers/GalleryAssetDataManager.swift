@@ -25,12 +25,14 @@ class GalleryAssetDataManager {
     
     // MARK: - GalleryItem
     
-    func loadGalleryItemAsset(_ asset: GalleryAsset, completionHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
-        if fileManager.fileExists(atPath: asset.cachedLocalAssetURL().path) {
-            print("Found local asset; attempting to load")
-            locallyLoadAsset(asset, completionHandler: completionHandler)
-        } else {
-            remotelyLoadAsset(asset, completionHandler: completionHandler)
+    func load(galleryItemAsset asset: GalleryAsset, completionHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            if self?.fileManager.fileExists(atPath: asset.cachedLocalAssetURL().path) ?? false {
+                print("Found local asset; attempting to load")
+                self?.locallyLoadAsset(asset, completionHandler: completionHandler)
+            } else {
+                self?.remotelyLoadAsset(asset, completionHandler: completionHandler)
+            }
         }
     }
     

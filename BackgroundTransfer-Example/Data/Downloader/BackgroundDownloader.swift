@@ -13,10 +13,10 @@ typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<UR
 
 class BackgroundDownloader: NSObject {
     
-    private var foregroundCompletionHandlers: [Int: ForegroundDownloadCompletionHandler] = [:]
+    private var foregroundCompletionHandlers: [URL: ForegroundDownloadCompletionHandler] = [:]
     var backgroundCompletionHandler: (() -> Void)?
     
-    private let sessionIdentifier = "com.background.session"
+    private let sessionIdentifier = "background.session"
     private let fileManager = FileManager.default
     private var session: URLSession?
     
@@ -38,20 +38,23 @@ class BackgroundDownloader: NSObject {
     
     // MARK: - Download
     
-    func download(remoteLocation: URL, localStorageLocation: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        print("Scheduling to download: \(remoteLocation)")
+    func download(remoteLocation: URL, localStorageLocation: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler){
+        if foregroundCompletionHandlers[remoteLocation] != nil {
+            print("Already downloading: \(remoteLocation)")
+            foregroundCompletionHandlers[remoteLocation] = completionHandler
+        } else {
+            print("Scheduling to download: \(remoteLocation)")
         
-        guard let task = session?.downloadTask(with: remoteLocation) else {
-            return
+            foregroundCompletionHandlers[remoteLocation] = completionHandler
+            guard let session = session else {
+                return
+            }
+            
+            let task = session.downloadTask(with: remoteLocation)
+            BackgroundDownloadItem.save(intoStorageWithTaskIdentifier: task.taskIdentifier, remoteLocation: remoteLocation, localStorageLocation: localStorageLocation)
+            task.earliestBeginDate = Date().addingTimeInterval(20)
+            task.resume()
         }
-        
-        BackgroundDownloadItem.save(intoStorageWithTaskIdentifier: task.taskIdentifier, remoteLocation: remoteLocation, localStorageLocation: localStorageLocation)
-        
-        task.earliestBeginDate = Date().addingTimeInterval(20)
-        
-        foregroundCompletionHandlers[task.taskIdentifier] = completionHandler
-        
-        task.resume()
     }
 }
 
@@ -68,11 +71,16 @@ extension BackgroundDownloader: URLSessionDelegate {
 extension BackgroundDownloader: URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        let foregroundCompletionHandler = foregroundCompletionHandlers[downloadTask.taskIdentifier]
+        guard let originalRequestURL = downloadTask.originalRequest?.url else {
+            return
+        }
+        
+        let foregroundCompletionHandler = foregroundCompletionHandlers[originalRequestURL]
         guard let backgroundDownloadItem = BackgroundDownloadItem.load(fromStorageWithTaskIdentifier: downloadTask.taskIdentifier) else {
             foregroundCompletionHandler?(.failure(APIError.invalidData))
             return
         }
+        
         print("Downloaded: \(backgroundDownloadItem.remoteLocation)")
         
         do {
@@ -83,6 +91,6 @@ extension BackgroundDownloader: URLSessionDownloadDelegate {
             foregroundCompletionHandler?(.failure(APIError.invalidData))
         }
         
-        foregroundCompletionHandlers[downloadTask.taskIdentifier] = nil
+        foregroundCompletionHandlers[originalRequestURL] = nil
     }
 }

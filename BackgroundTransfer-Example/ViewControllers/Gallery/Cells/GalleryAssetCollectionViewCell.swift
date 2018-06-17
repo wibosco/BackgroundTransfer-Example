@@ -27,7 +27,7 @@ class GalleryAssetCollectionViewCell: UICollectionViewCell {
     
     func configure(asset: GalleryAsset) {
         self.asset = asset
-        assetDataManager.loadGalleryItemAsset(asset) { [weak self] (result) in
+        assetDataManager.load(galleryItemAsset: asset) { [weak self] (result) in
             switch result {
             case .success(let loadResult):
                 if loadResult.asset == self?.asset {
