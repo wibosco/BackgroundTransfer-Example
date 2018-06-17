@@ -55,7 +55,7 @@ class GalleryAssetDataManager {
     }
     
     private func remotelyLoadAsset(_ asset: GalleryAsset, completionHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
-        let downloader = BackgroundDownloader()
+        let downloader = BackgroundDownloader.shared
         
         downloader.download(remoteLocation: asset.url, localStorageLocation: asset.cachedLocalAssetURL()) { (result) in
             switch result {

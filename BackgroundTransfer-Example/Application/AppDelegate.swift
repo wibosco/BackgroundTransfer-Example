@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         DispatchQueue.main.asyncAfter(deadline: .now()) {
             print("App is about to quit")
-            
+
             if let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
                 debugPrint("Gallery assets will be saved to: \(documentsPath)")
             }
@@ -50,7 +50,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Background
     
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
-        let downloader = BackgroundDownloader(sessionIdentifier: identifier)
-        downloader.backgroundCompletionHandler = completionHandler
+        BackgroundDownloader.shared.backgroundCompletionHandler = completionHandler
     }
 }

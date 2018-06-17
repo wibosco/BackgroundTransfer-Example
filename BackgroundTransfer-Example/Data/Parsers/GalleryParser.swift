@@ -44,7 +44,8 @@ class GalleryParser: Parser<[GalleryAsset]> {
     
     func parseItemImage(_ itemResponse: [String: Any]) -> [GalleryAsset]? {
         guard let imageURLString = itemResponse["link"] as? String,
-            let imageURL = URL(string: imageURLString)
+            let imageURL = URL(string: imageURLString),
+            isImageJPEG(imageURL: imageURL)
             else {
                 return nil
         }
@@ -65,10 +66,11 @@ class GalleryParser: Parser<[GalleryAsset]> {
         for imageResponse in imageResponses {
             if let linkURLString = imageResponse["link"] as? String {
                 if let linkURL = URL(string: linkURLString) {
-                    
-                    let asset = GalleryAsset(id: fileName(forURL: linkURL), url: linkURL)
-
-                    assets.append(asset)
+                    if isImageJPEG(imageURL: linkURL) {
+                        let asset = GalleryAsset(id: fileName(forURL: linkURL), url: linkURL)
+                        
+                        assets.append(asset)
+                    }
                 }
             }
         }
@@ -78,5 +80,9 @@ class GalleryParser: Parser<[GalleryAsset]> {
     
     func fileName(forURL url: URL) -> String {
         return url.deletingPathExtension().lastPathComponent
+    }
+    
+    func isImageJPEG(imageURL: URL) -> Bool {
+        return imageURL.pathExtension.lowercased() == "jpg"
     }
 }

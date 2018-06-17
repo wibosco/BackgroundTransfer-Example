@@ -13,18 +13,20 @@ typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<UR
 
 class BackgroundDownloader: NSObject {
     
-    var foregroundCompletionHandler: ForegroundDownloadCompletionHandler?
+    private var foregroundCompletionHandlers: [Int: ForegroundDownloadCompletionHandler] = [:]
     var backgroundCompletionHandler: (() -> Void)?
     
-    private let sessionIdentifier: String
+    private let sessionIdentifier = "com.background.session"
     private let fileManager = FileManager.default
     private var session: URLSession?
     
+    // MARK: - Singleton
+    
+    static let shared = BackgroundDownloader()
+    
     // MARK: - Init
     
-    init(sessionIdentifier: String = UUID().uuidString) {
-        self.sessionIdentifier = sessionIdentifier
-        
+    private override init() {
         super.init()
         
         let sessionConfiguration = URLSessionConfiguration.background(withIdentifier: sessionIdentifier)
@@ -37,15 +39,19 @@ class BackgroundDownloader: NSObject {
     // MARK: - Download
     
     func download(remoteLocation: URL, localStorageLocation: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        self.foregroundCompletionHandler = completionHandler
-        
         print("Scheduling to download: \(remoteLocation)")
         
-        BackgroundDownloadItem.save(intoStorageWithSessionIdentifier: sessionIdentifier, remoteLocation: remoteLocation, localStorageLocation: localStorageLocation)
+        guard let task = session?.downloadTask(with: remoteLocation) else {
+            return
+        }
         
-        let task = session?.downloadTask(with: remoteLocation)
-        task?.earliestBeginDate = Date().addingTimeInterval(25)
-        task?.resume()
+        BackgroundDownloadItem.save(intoStorageWithTaskIdentifier: task.taskIdentifier, remoteLocation: remoteLocation, localStorageLocation: localStorageLocation)
+        
+        task.earliestBeginDate = Date().addingTimeInterval(20)
+        
+        foregroundCompletionHandlers[task.taskIdentifier] = completionHandler
+        
+        task.resume()
     }
 }
 
@@ -55,8 +61,6 @@ extension BackgroundDownloader: URLSessionDelegate {
         DispatchQueue.main.async {
             self.backgroundCompletionHandler?()
             self.backgroundCompletionHandler = nil
-            
-            self.session?.finishTasksAndInvalidate() // needed as session delegate is strong rather than the usual weak
         }
     }
 }
@@ -64,13 +68,14 @@ extension BackgroundDownloader: URLSessionDelegate {
 extension BackgroundDownloader: URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        let foregroundCompletionHandler = foregroundCompletionHandlers[downloadTask.taskIdentifier]
+        guard let backgroundDownloadItem = BackgroundDownloadItem.load(fromStorageWithTaskIdentifier: downloadTask.taskIdentifier) else {
+            foregroundCompletionHandler?(.failure(APIError.invalidData))
+            return
+        }
+        print("Downloaded: \(backgroundDownloadItem.remoteLocation)")
+        
         do {
-            guard let sessionIdentifier = session.configuration.identifier, let backgroundDownloadItem = BackgroundDownloadItem.load(fromStorageWithSessionIdentifier: sessionIdentifier) else {
-                foregroundCompletionHandler?(.failure(APIError.invalidData))
-                return
-            }
-            print("Completing download of: \(backgroundDownloadItem.remoteLocation)")
-
             try fileManager.moveItem(at: location, to: backgroundDownloadItem.localStorageLocation)
             
             foregroundCompletionHandler?(.success(backgroundDownloadItem.localStorageLocation))
@@ -78,6 +83,6 @@ extension BackgroundDownloader: URLSessionDownloadDelegate {
             foregroundCompletionHandler?(.failure(APIError.invalidData))
         }
         
-        session.finishTasksAndInvalidate() // needed as session delegate is strong rather than the usual weak
+        foregroundCompletionHandlers[downloadTask.taskIdentifier] = nil
     }
 }
