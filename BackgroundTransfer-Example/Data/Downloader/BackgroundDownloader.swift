@@ -16,7 +16,7 @@ class BackgroundDownloader: NSObject {
     private var foregroundCompletionHandlers: [URL: ForegroundDownloadCompletionHandler] = [:]
     var backgroundCompletionHandler: (() -> Void)?
     
-    private let sessionIdentifier = "background.session"
+    private let sessionIdentifier = "background.download.session"
     private let fileManager = FileManager.default
     private var session: URLSession?
     
@@ -30,9 +30,6 @@ class BackgroundDownloader: NSObject {
         super.init()
         
         let sessionConfiguration = URLSessionConfiguration.background(withIdentifier: sessionIdentifier)
-        sessionConfiguration.isDiscretionary = false
-        sessionConfiguration.sessionSendsLaunchEvents = true
-        
         session = URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }
     
@@ -58,6 +55,8 @@ class BackgroundDownloader: NSObject {
     }
 }
 
+// MARK: - URLSessionDelegate
+
 extension BackgroundDownloader: URLSessionDelegate {
     
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
@@ -67,6 +66,8 @@ extension BackgroundDownloader: URLSessionDelegate {
         }
     }
 }
+
+// MARK: - URLSessionDownloadDelegate
 
 extension BackgroundDownloader: URLSessionDownloadDelegate {
     

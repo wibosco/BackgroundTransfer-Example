@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
+        //Exit app to test restoring app from a terminated state. Comment out to test restoring app from a suspended state.
         DispatchQueue.main.asyncAfter(deadline: .now()) {
             print("App is about to quit")
 

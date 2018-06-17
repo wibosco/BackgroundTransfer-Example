@@ -25,38 +25,17 @@ class GalleryAssetDataManager {
     
     // MARK: - GalleryItem
     
-    func load(galleryItemAsset asset: GalleryAsset, completionHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
-        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-            if self?.fileManager.fileExists(atPath: asset.cachedLocalAssetURL().path) ?? false {
-                print("Found local asset; attempting to load")
-                self?.locallyLoadAsset(asset, completionHandler: completionHandler)
-            } else {
-                self?.remotelyLoadAsset(asset, completionHandler: completionHandler)
-            }
+    func load(galleryItemAsset asset: GalleryAsset, remoteLoadHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) -> UIImage? {
+        if let image = UIImage(contentsOfFile: asset.cachedLocalAssetURL().path) {
+            return image
+        } else {
+            remotelyLoadAsset(asset, remoteLoadHandler: remoteLoadHandler)
         }
+        
+        return nil
     }
     
-    private func locallyLoadAsset(_ asset: GalleryAsset, completionHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
-        do {
-            let data = try Data(contentsOf: asset.cachedLocalAssetURL())
-            
-            guard let image = UIImage(data: data) else {
-                completionHandler(.failure(APIError.invalidData))
-                return
-            }
-            
-            let loadResult = LoadAssetResult(asset: asset, image: image)
-            let dataRequestResult = DataRequestResult<LoadAssetResult>.success(loadResult)
-            
-            DispatchQueue.main.async {
-                completionHandler(dataRequestResult)
-            }
-        } catch {
-            remotelyLoadAsset(asset, completionHandler: completionHandler)
-        }
-    }
-    
-    private func remotelyLoadAsset(_ asset: GalleryAsset, completionHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
+    private func remotelyLoadAsset(_ asset: GalleryAsset, remoteLoadHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
         let downloader = BackgroundDownloader.shared
         
         downloader.download(remoteLocation: asset.url, localStorageLocation: asset.cachedLocalAssetURL()) { (result) in
@@ -66,11 +45,11 @@ class GalleryAssetDataManager {
                 do {
                     retrievedData = try Data(contentsOf: url)
                 } catch {
-                    completionHandler(.failure(APIError.invalidData))
+                    remoteLoadHandler(.failure(APIError.invalidData))
                 }
                 
                 guard let imageData = retrievedData, let image = UIImage(data: imageData) else {
-                    completionHandler(.failure(APIError.invalidData))
+                    remoteLoadHandler(.failure(APIError.invalidData))
                     return
                 }
                 
@@ -78,10 +57,10 @@ class GalleryAssetDataManager {
                 let dataRequestResult = DataRequestResult<LoadAssetResult>.success(loadResult)
                 
                 DispatchQueue.main.async {
-                    completionHandler(dataRequestResult)
+                    remoteLoadHandler(dataRequestResult)
                 }
             case .failure(let error):
-                completionHandler(.failure(error))
+                remoteLoadHandler(.failure(error))
             }
         }
     }
