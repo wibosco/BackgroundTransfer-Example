@@ -21,8 +21,6 @@ struct LoadAssetResult: Equatable {
 
 class GalleryAssetDataManager {
     
-    private let fileManager = FileManager.default
-    
     // MARK: - GalleryItem
     
     func load(galleryItemAsset asset: GalleryAsset, remoteLoadHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) -> UIImage? {
@@ -38,7 +36,7 @@ class GalleryAssetDataManager {
     private func remotelyLoadAsset(_ asset: GalleryAsset, remoteLoadHandler: @escaping ((_ result: DataRequestResult<LoadAssetResult>) -> ())) {
         let downloader = BackgroundDownloader.shared
         
-        downloader.download(remoteLocation: asset.url, localStorageLocation: asset.cachedLocalAssetURL()) { (result) in
+        downloader.download(remoteURL: asset.url, filePathURL: asset.cachedLocalAssetURL()) { (result) in
             switch result {
             case .success(let url):
                 var retrievedData: Data? = nil

@@ -25,7 +25,8 @@
 		3DEAF2A620948C8A004FE44E /* GalleryURLRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEAF29520948C8A004FE44E /* GalleryURLRequestFactory.swift */; };
 		3DEAF2AA20948C8A004FE44E /* NSObject+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEAF29C20948C8A004FE44E /* NSObject+Name.swift */; };
 		C2CA0B3420CC0415005B3846 /* BackgroundDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */; };
-		C2CA0B3520CC0415005B3846 /* BackgroundDownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CA0B3320CC0415005B3846 /* BackgroundDownloadItem.swift */; };
+		C2D4C8D820D805A400C740CA /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D720D805A400C740CA /* DownloadItem.swift */; };
+		C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,7 +62,8 @@
 		3DEAF29520948C8A004FE44E /* GalleryURLRequestFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryURLRequestFactory.swift; sourceTree = "<group>"; };
 		3DEAF29C20948C8A004FE44E /* NSObject+Name.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Name.swift"; sourceTree = "<group>"; };
 		C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloader.swift; sourceTree = "<group>"; };
-		C2CA0B3320CC0415005B3846 /* BackgroundDownloadItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadItem.swift; sourceTree = "<group>"; };
+		C2D4C8D720D805A400C740CA /* DownloadItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadItem.swift; sourceTree = "<group>"; };
+		C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloaderContext.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -266,7 +268,8 @@
 			isa = PBXGroup;
 			children = (
 				C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */,
-				C2CA0B3320CC0415005B3846 /* BackgroundDownloadItem.swift */,
+				C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */,
+				C2D4C8D720D805A400C740CA /* DownloadItem.swift */,
 			);
 			path = Downloader;
 			sourceTree = "<group>";
@@ -377,6 +380,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */,
 				3DEAF29D20948C8A004FE44E /* Parser.swift in Sources */,
 				3D7762B22099E82600BCCA3A /* GalleryViewController.swift in Sources */,
 				3D7762B12099E82600BCCA3A /* GalleryAssetCollectionViewCell.swift in Sources */,
@@ -387,11 +391,11 @@
 				3DEAF27720947086004FE44E /* AppDelegate.swift in Sources */,
 				3DEAF2AA20948C8A004FE44E /* NSObject+Name.swift in Sources */,
 				3DEAF29E20948C8A004FE44E /* GalleryParser.swift in Sources */,
-				C2CA0B3520CC0415005B3846 /* BackgroundDownloadItem.swift in Sources */,
 				3DEAF2A120948C8A004FE44E /* GalleryAssetDataManager.swift in Sources */,
 				3D7762AC2099E49F00BCCA3A /* GalleryAsset.swift in Sources */,
 				3DEAF2A520948C8A004FE44E /* URLRequestFactory.swift in Sources */,
 				3DEAF2A620948C8A004FE44E /* GalleryURLRequestFactory.swift in Sources */,
+				C2D4C8D820D805A400C740CA /* DownloadItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

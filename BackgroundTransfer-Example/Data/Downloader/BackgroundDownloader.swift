@@ -9,15 +9,12 @@
 import Foundation
 import UIKit
 
-typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<URL>) -> Void)
-
 class BackgroundDownloader: NSObject {
-    
-    private var foregroundCompletionHandlers: [URL: ForegroundDownloadCompletionHandler] = [:]
+
     var backgroundCompletionHandler: (() -> Void)?
     
-    private let sessionIdentifier = "background.download.session"
     private let fileManager = FileManager.default
+    private let context = BackgroundDownloaderContext()
     private var session: URLSession?
     
     // MARK: - Singleton
@@ -29,26 +26,28 @@ class BackgroundDownloader: NSObject {
     private override init() {
         super.init()
         
-        let sessionConfiguration = URLSessionConfiguration.background(withIdentifier: sessionIdentifier)
-        session = URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
+        let configuration = URLSessionConfiguration.background(withIdentifier: "background.download.session")
+        session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }
     
     // MARK: - Download
     
-    func download(remoteLocation: URL, localStorageLocation: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler){
-        if foregroundCompletionHandlers[remoteLocation] != nil {
-            print("Already downloading: \(remoteLocation)")
-            foregroundCompletionHandlers[remoteLocation] = completionHandler
-        } else {
-            print("Scheduling to download: \(remoteLocation)")
+    func download(remoteURL: URL, filePathURL: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
+        guard let session = session else {
+            fatalError("Session needs to be setup before calling download")
+        }
         
-            foregroundCompletionHandlers[remoteLocation] = completionHandler
-            guard let session = session else {
-                return
-            }
+        if let downloadItem = context.loadDownloadItem(withURL: remoteURL) {
+            print("Already downloading: \(remoteURL)")
+            downloadItem.foregroundCompletionHandler = completionHandler
+        } else {
+            print("Scheduling to download: \(remoteURL)")
             
-            let task = session.downloadTask(with: remoteLocation)
-            BackgroundDownloadItem.save(intoStorageWithTaskIdentifier: task.taskIdentifier, remoteLocation: remoteLocation, localStorageLocation: localStorageLocation)
+            let downloadItem = DownloadItem(remoteURL: remoteURL, filePathURL: filePathURL)
+            downloadItem.foregroundCompletionHandler = completionHandler
+            context.saveDownloadItem(downloadItem)
+            
+            let task = session.downloadTask(with: remoteURL)
             task.earliestBeginDate = Date().addingTimeInterval(20)
             task.resume()
         }
@@ -72,26 +71,20 @@ extension BackgroundDownloader: URLSessionDelegate {
 extension BackgroundDownloader: URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let originalRequestURL = downloadTask.originalRequest?.url else {
+        guard let originalRequestURL = downloadTask.originalRequest?.url, let downloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
             return
         }
-        
-        let foregroundCompletionHandler = foregroundCompletionHandlers[originalRequestURL]
-        guard let backgroundDownloadItem = BackgroundDownloadItem.load(fromStorageWithTaskIdentifier: downloadTask.taskIdentifier) else {
-            foregroundCompletionHandler?(.failure(APIError.invalidData))
-            return
-        }
-        
-        print("Downloaded: \(backgroundDownloadItem.remoteLocation)")
+    
+        print("Downloaded: \(downloadItem.remoteURL)")
         
         do {
-            try fileManager.moveItem(at: location, to: backgroundDownloadItem.localStorageLocation)
+            try fileManager.moveItem(at: location, to: downloadItem.filePathURL)
             
-            foregroundCompletionHandler?(.success(backgroundDownloadItem.localStorageLocation))
+            downloadItem.foregroundCompletionHandler?(.success(downloadItem.filePathURL))
         } catch {
-            foregroundCompletionHandler?(.failure(APIError.invalidData))
+            downloadItem.foregroundCompletionHandler?(.failure(APIError.invalidData))
         }
         
-        foregroundCompletionHandlers[originalRequestURL] = nil
+       context.deleteDownloadItem(downloadItem)
     }
 }
