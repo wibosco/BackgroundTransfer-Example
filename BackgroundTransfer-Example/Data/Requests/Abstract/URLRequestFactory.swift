@@ -17,11 +17,11 @@ enum APIError: Error {
 
 class URLRequestFactory {
     
-    let config: RequestConfig
+    private let config: RequestConfig
     
     // MARK: - Init
     
-    init(config: RequestConfig = RequestConfig.shared) {
+    init(config: RequestConfig = RequestConfig()) {
         self.config = config
     }
     

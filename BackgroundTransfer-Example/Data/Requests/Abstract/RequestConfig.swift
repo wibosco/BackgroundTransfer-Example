@@ -17,27 +17,20 @@ enum HTTPRequestMethod: String {
 
 class RequestConfig {
     
-    static let shared = RequestConfig()
+    let clientID: String
+    let APIHost: String
     
-    // MARK: - Client
+    // MARK: - Init
     
-    lazy var clientID: String = {
-        let clientID = ""
-//        assert(!clientID.isEmpty, "You need to provide a clientID hash, you get this from [insert imgur url]")
-        return clientID
-    }()
-    
-    // MARK: - Networking
-    
-    lazy var APIHost: String = {
-        return "https://api.imgur.com/3"
-    }()
-    
-    lazy var timeInterval: TimeInterval = {
-        return 45
-    }()
-    
-    lazy var cachePolicy: NSURLRequest.CachePolicy = {
-        return .useProtocolCachePolicy
-    }()
+    init() {
+        var clientID = ""
+        if let testClientID = ProcessInfo.processInfo.environment["TEST_CLIENT_ID"] as String? {
+            clientID = testClientID
+        }
+        
+        assert(!clientID.isEmpty, "You need to provide a clientID hash, you get this from [insert imgur url]")
+        
+        self.clientID = clientID
+        self.APIHost = "https://api.imgur.com/3"
+    }
 }
