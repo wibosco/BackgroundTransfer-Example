@@ -1,5 +1,5 @@
 //
-//  AssetDataManager.swift
+//  GalleryAssetDataManager.swift
 //  BackgroundTransfer-Example
 //
 //  Created by William Boles on 28/04/2018.

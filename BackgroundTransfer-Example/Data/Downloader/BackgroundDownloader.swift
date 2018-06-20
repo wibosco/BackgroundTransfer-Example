@@ -15,7 +15,7 @@ class BackgroundDownloader: NSObject {
     
     private let fileManager = FileManager.default
     private let context = BackgroundDownloaderContext()
-    private var session: URLSession?
+    private var session: URLSession!
     
     // MARK: - Singleton
     
@@ -33,10 +33,6 @@ class BackgroundDownloader: NSObject {
     // MARK: - Download
     
     func download(remoteURL: URL, filePathURL: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        guard let session = session else {
-            fatalError("Session needs to be setup before calling download")
-        }
-        
         if let downloadItem = context.loadDownloadItem(withURL: remoteURL) {
             print("Already downloading: \(remoteURL)")
             downloadItem.foregroundCompletionHandler = completionHandler
