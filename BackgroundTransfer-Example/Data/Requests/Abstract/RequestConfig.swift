@@ -23,7 +23,7 @@ class RequestConfig {
     
     lazy var clientID: String = {
         let clientID = ""
-        assert(!clientID.isEmpty, "You need to provide a clientID hash, you get this from [insert imgur url]")
+//        assert(!clientID.isEmpty, "You need to provide a clientID hash, you get this from [insert imgur url]")
         return clientID
     }()
     
