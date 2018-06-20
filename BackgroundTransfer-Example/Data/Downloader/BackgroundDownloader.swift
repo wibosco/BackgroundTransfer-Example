@@ -44,7 +44,7 @@ class BackgroundDownloader: NSObject {
             context.saveDownloadItem(downloadItem)
             
             let task = session.downloadTask(with: remoteURL)
-            task.earliestBeginDate = Date().addingTimeInterval(20)
+            task.earliestBeginDate = Date().addingTimeInterval(20) // Added a delay for demonstration purposes only
             task.resume()
         }
     }
