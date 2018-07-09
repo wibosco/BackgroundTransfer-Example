@@ -23,14 +23,9 @@ class RequestConfig {
     // MARK: - Init
     
     init() {
-        var clientID = ""
-        if let testClientID = ProcessInfo.processInfo.environment["TEST_CLIENT_ID"] as String? {
-            clientID = testClientID
-        }
+        self.clientID = ""
+        self.APIHost = "https://api.imgur.com/3"
         
         assert(!clientID.isEmpty, "You need to provide a clientID hash, you get this from: https://api.imgur.com/oauth2/addclient")
-        
-        self.clientID = clientID
-        self.APIHost = "https://api.imgur.com/3"
     }
 }

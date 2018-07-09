@@ -25,15 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        //Exit app to test restoring app from a terminated state. Comment out to test restoring app from a suspended state.
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            print("App is about to quit")
 
-            if let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
-                debugPrint("Gallery assets will be saved to: \(documentsPath)")
-            }
-            exit(0)
-        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -46,11 +38,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-    
-    // MARK: - Background
-    
-    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
-        BackgroundDownloader.shared.backgroundCompletionHandler = completionHandler
     }
 }

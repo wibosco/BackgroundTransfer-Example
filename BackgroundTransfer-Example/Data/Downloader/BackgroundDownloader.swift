@@ -11,11 +11,9 @@ import UIKit
 
 class BackgroundDownloader: NSObject {
 
-    var backgroundCompletionHandler: (() -> Void)?
-    
     private let fileManager = FileManager.default
-    private let context = BackgroundDownloaderContext()
     private var session: URLSession!
+    private var downloadItems: [URL: DownloadItem] = [:]
     
     // MARK: - Singleton
     
@@ -33,7 +31,7 @@ class BackgroundDownloader: NSObject {
     // MARK: - Download
     
     func download(remoteURL: URL, filePathURL: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        if let downloadItem = context.loadDownloadItem(withURL: remoteURL) {
+        if let downloadItem = downloadItems[remoteURL] {
             print("Already downloading: \(remoteURL)")
             downloadItem.foregroundCompletionHandler = completionHandler
         } else {
@@ -41,23 +39,10 @@ class BackgroundDownloader: NSObject {
             
             let downloadItem = DownloadItem(remoteURL: remoteURL, filePathURL: filePathURL)
             downloadItem.foregroundCompletionHandler = completionHandler
-            context.saveDownloadItem(downloadItem)
+            downloadItems[remoteURL] = downloadItem
             
             let task = session.downloadTask(with: remoteURL)
-            task.earliestBeginDate = Date().addingTimeInterval(20) // Added a delay for demonstration purposes only
             task.resume()
-        }
-    }
-}
-
-// MARK: - URLSessionDelegate
-
-extension BackgroundDownloader: URLSessionDelegate {
-    
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        DispatchQueue.main.async {
-            self.backgroundCompletionHandler?()
-            self.backgroundCompletionHandler = nil
         }
     }
 }
@@ -67,10 +52,10 @@ extension BackgroundDownloader: URLSessionDelegate {
 extension BackgroundDownloader: URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let originalRequestURL = downloadTask.originalRequest?.url, let downloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
+        guard let originalRequestURL = downloadTask.originalRequest?.url, let downloadItem = downloadItems[originalRequestURL] else {
             return
         }
-    
+        
         print("Downloaded: \(downloadItem.remoteURL)")
         
         do {
@@ -81,6 +66,6 @@ extension BackgroundDownloader: URLSessionDownloadDelegate {
             downloadItem.foregroundCompletionHandler?(.failure(APIError.invalidData))
         }
         
-       context.deleteDownloadItem(downloadItem)
+        downloadItems[originalRequestURL] = nil
     }
 }

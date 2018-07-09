@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -26,7 +26,6 @@
 		3DEAF2AA20948C8A004FE44E /* NSObject+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEAF29C20948C8A004FE44E /* NSObject+Name.swift */; };
 		C2CA0B3420CC0415005B3846 /* BackgroundDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */; };
 		C2D4C8D820D805A400C740CA /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D720D805A400C740CA /* DownloadItem.swift */; };
-		C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,7 +62,6 @@
 		3DEAF29C20948C8A004FE44E /* NSObject+Name.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Name.swift"; sourceTree = "<group>"; };
 		C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloader.swift; sourceTree = "<group>"; };
 		C2D4C8D720D805A400C740CA /* DownloadItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadItem.swift; sourceTree = "<group>"; };
-		C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloaderContext.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -268,7 +266,6 @@
 			isa = PBXGroup;
 			children = (
 				C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */,
-				C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */,
 				C2D4C8D720D805A400C740CA /* DownloadItem.swift */,
 			);
 			path = Downloader;
@@ -324,6 +321,7 @@
 				TargetAttributes = {
 					3DA8110C20946F5D007F6272 = {
 						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -332,12 +330,12 @@
 					};
 					3DA8112020946F5E007F6272 = {
 						CreatedOnToolsVersion = 9.3;
-						TestTargetID = 3DA8110C20946F5D007F6272;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
 			buildConfigurationList = 3DA8110820946F5D007F6272 /* Build configuration list for PBXProject "BackgroundTransfer-Example" */;
-			compatibilityVersion = "Xcode 9.3";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -380,7 +378,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */,
 				3DEAF29D20948C8A004FE44E /* Parser.swift in Sources */,
 				3D7762B22099E82600BCCA3A /* GalleryViewController.swift in Sources */,
 				3D7762B12099E82600BCCA3A /* GalleryAssetCollectionViewCell.swift in Sources */,
@@ -545,8 +542,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -557,10 +553,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "BackgroundTransfer-Example/Application/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.williamboles.BackgroundTransfer-Example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -574,10 +567,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "BackgroundTransfer-Example/Application/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.williamboles.BackgroundTransfer-Example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -589,19 +579,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "BackgroundTransfer-ExampleTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.williamboles.BackgroundTransfer-ExampleTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BackgroundTransfer-Example.app/BackgroundTransfer-Example";
 			};
 			name = Debug;
 		};
@@ -609,19 +593,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "BackgroundTransfer-ExampleTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.williamboles.BackgroundTransfer-ExampleTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BackgroundTransfer-Example.app/BackgroundTransfer-Example";
 			};
 			name = Release;
 		};
