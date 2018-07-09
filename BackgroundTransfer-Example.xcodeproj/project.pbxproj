@@ -26,7 +26,6 @@
 		3DEAF2AA20948C8A004FE44E /* NSObject+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEAF29C20948C8A004FE44E /* NSObject+Name.swift */; };
 		C2CA0B3420CC0415005B3846 /* BackgroundDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */; };
 		C2D4C8D820D805A400C740CA /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D720D805A400C740CA /* DownloadItem.swift */; };
-		C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,7 +62,6 @@
 		3DEAF29C20948C8A004FE44E /* NSObject+Name.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+Name.swift"; sourceTree = "<group>"; };
 		C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloader.swift; sourceTree = "<group>"; };
 		C2D4C8D720D805A400C740CA /* DownloadItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadItem.swift; sourceTree = "<group>"; };
-		C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloaderContext.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -268,7 +266,6 @@
 			isa = PBXGroup;
 			children = (
 				C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */,
-				C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */,
 				C2D4C8D720D805A400C740CA /* DownloadItem.swift */,
 			);
 			path = Downloader;
@@ -332,7 +329,6 @@
 					};
 					3DA8112020946F5E007F6272 = {
 						CreatedOnToolsVersion = 9.3;
-						TestTargetID = 3DA8110C20946F5D007F6272;
 					};
 				};
 			};
@@ -380,7 +376,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */,
 				3DEAF29D20948C8A004FE44E /* Parser.swift in Sources */,
 				3D7762B22099E82600BCCA3A /* GalleryViewController.swift in Sources */,
 				3D7762B12099E82600BCCA3A /* GalleryAssetCollectionViewCell.swift in Sources */,
@@ -589,7 +584,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "BackgroundTransfer-ExampleTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -601,7 +595,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BackgroundTransfer-Example.app/BackgroundTransfer-Example";
 			};
 			name = Debug;
 		};
@@ -609,7 +602,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "BackgroundTransfer-ExampleTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -621,7 +613,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BackgroundTransfer-Example.app/BackgroundTransfer-Example";
 			};
 			name = Release;
 		};
