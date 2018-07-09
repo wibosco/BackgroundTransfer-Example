@@ -44,7 +44,20 @@ class BackgroundDownloader: NSObject {
             downloadItems[remoteURL] = downloadItem
             
             let task = session.downloadTask(with: remoteURL)
+            task.earliestBeginDate = Date().addingTimeInterval(5) // Added a delay for demonstration purposes only
             task.resume()
+        }
+    }
+}
+
+// MARK: - URLSessionDelegate
+
+extension BackgroundDownloader: URLSessionDelegate {
+    
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        DispatchQueue.main.async {
+            self.backgroundCompletionHandler?()
+            self.backgroundCompletionHandler = nil
         }
     }
 }
