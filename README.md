@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/wibosco/DownloadStack-Example.svg)](https://travis-ci.org/wibosco/BackgroundTransfer-Example)
+<a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-4.2-orange.svg?style=flat" alt="Swift" /></a>
 
 # BackgroundTransfer-Example
 An example project looking at how to implement background transfers on iOS as shown in this article - https://williamboles.me/keeping-things-going-when-the-user-leaves-with-urlsession-and-background-transfers/
