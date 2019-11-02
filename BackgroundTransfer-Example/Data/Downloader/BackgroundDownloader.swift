@@ -13,7 +13,6 @@ class BackgroundDownloader: NSObject {
 
     var backgroundCompletionHandler: (() -> Void)?
     
-    private let fileManager = FileManager.default
     private var session: URLSession!
     private var downloadItems: [URL: DownloadItem] = [:]
     
@@ -33,20 +32,15 @@ class BackgroundDownloader: NSObject {
     // MARK: - Download
     
     func download(remoteURL: URL, filePathURL: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        if let downloadItem = downloadItems[remoteURL] {
-            print("Already downloading: \(remoteURL)")
-            downloadItem.foregroundCompletionHandler = completionHandler
-        } else {
-            print("Scheduling to download: \(remoteURL)")
-            
-            let downloadItem = DownloadItem(remoteURL: remoteURL, filePathURL: filePathURL)
-            downloadItem.foregroundCompletionHandler = completionHandler
-            downloadItems[remoteURL] = downloadItem
-            
-            let task = session.downloadTask(with: remoteURL)
-            task.earliestBeginDate = Date().addingTimeInterval(5) // Added a delay for demonstration purposes only
-            task.resume()
-        }
+        print("Scheduling to download: \(remoteURL)")
+        
+        let downloadItem = DownloadItem(remoteURL: remoteURL, filePathURL: filePathURL)
+        downloadItem.foregroundCompletionHandler = completionHandler
+        downloadItems[remoteURL] = downloadItem
+        
+        let task = session.downloadTask(with: remoteURL)
+        task.earliestBeginDate = Date().addingTimeInterval(5) // Added a delay for demonstration purposes only
+        task.resume()
     }
 }
 
@@ -74,7 +68,7 @@ extension BackgroundDownloader: URLSessionDownloadDelegate {
         print("Downloaded: \(downloadItem.remoteURL)")
         
         do {
-            try fileManager.moveItem(at: location, to: downloadItem.filePathURL)
+            try FileManager.default.moveItem(at: location, to: downloadItem.filePathURL)
             
             downloadItem.foregroundCompletionHandler?(.success(downloadItem.filePathURL))
         } catch {
