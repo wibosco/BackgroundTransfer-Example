@@ -11,7 +11,6 @@ import Foundation
 typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<URL>) -> Void)
 
 class DownloadItem: Codable {
-
     let remoteURL: URL
     let filePathURL: URL
     var foregroundCompletionHandler: ForegroundDownloadCompletionHandler?
