@@ -7,37 +7,31 @@
 //
 
 import Foundation
-import UIKit
+import os
 
 class BackgroundDownloader: NSObject {
-
     var backgroundCompletionHandler: (() -> Void)?
     
     private let fileManager = FileManager.default
     private let context = BackgroundDownloaderContext()
-    private var session: URLSession!
+    private lazy var session: URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: "background.download.session")
+        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        return session
+    }()
     
     // MARK: - Singleton
     
     static let shared = BackgroundDownloader()
     
-    // MARK: - Init
-    
-    private override init() {
-        super.init()
-        
-        let configuration = URLSessionConfiguration.background(withIdentifier: "background.download.session")
-        session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-    }
-    
     // MARK: - Download
     
     func download(remoteURL: URL, filePathURL: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
         if let downloadItem = context.loadDownloadItem(withURL: remoteURL) {
-            print("Already downloading: \(remoteURL)")
+            os_log(.info, "Already downloading: %{public}@", remoteURL.absoluteString)
             downloadItem.foregroundCompletionHandler = completionHandler
         } else {
-            print("Scheduling to download: \(remoteURL)")
+            os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
             
             let downloadItem = DownloadItem(remoteURL: remoteURL, filePathURL: filePathURL)
             downloadItem.foregroundCompletionHandler = completionHandler

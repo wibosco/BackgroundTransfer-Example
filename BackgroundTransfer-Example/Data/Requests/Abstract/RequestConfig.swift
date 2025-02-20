@@ -23,7 +23,7 @@ class RequestConfig {
     // MARK: - Init
     
     init() {
-        self.clientID = ""
+        self.clientID = "c85c6251f7e5303"
         self.APIHost = "https://api.imgur.com/3"
         
         assert(!clientID.isEmpty, "You need to provide a clientID hash, you get this from: https://api.imgur.com/oauth2/addclient")

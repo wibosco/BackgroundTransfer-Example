@@ -73,6 +73,8 @@ extension GalleryViewController: UICollectionViewDataSource {
         let asset = assets[indexPath.row]
         
         cell.configure(asset: asset)
+        cell.layer.borderColor = UIColor.red.cgColor
+        cell.layer.borderWidth = 4
         
         return cell
     }
