@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import os
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: - Lifecycle
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {        
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {        
         return true
     }
 
@@ -27,10 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         //Exit app to test restoring app from a terminated state. Comment out to test restoring app from a suspended state.
         DispatchQueue.main.asyncAfter(deadline: .now()) {
-            print("App is about to quit")
+            os_log(.info, "App is about to quit")
 
             if let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
-                debugPrint("Gallery assets will be saved to: \(documentsPath)")
+                os_log(.info, "Gallery assets will be saved to: %{public}@", documentsPath)
             }
             exit(0)
         }

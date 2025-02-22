@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sxs-k7-Gv8">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sxs-k7-Gv8">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,10 +25,10 @@
             </objects>
             <point key="canvasLocation" x="-1118" y="-360"/>
         </scene>
-        <!--Cat Gallery-->
+        <!--Cats  😺-->
         <scene sceneID="gq7-qf-qf9">
             <objects>
-                <viewController id="1gk-bh-oRb" customClass="GalleryViewController" customModule="BackgroundTransfer_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="1gk-bh-oRb" customClass="CatsViewController" customModule="BackgroundTransfer_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="g7Z-lB-6xj">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -43,26 +43,26 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="GalleryAssetCollectionViewCell" id="PVL-n7-2Jd" customClass="GalleryAssetCollectionViewCell" customModule="BackgroundTransfer_Example" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CatCollectionViewCell" id="PVL-n7-2Jd" customClass="CatCollectionViewCell" customModule="BackgroundTransfer_Example" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="154" height="154"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                             <rect key="frame" x="0.0" y="0.0" width="154" height="154"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="2zk-nB-u0f">
-                                                    <rect key="frame" x="16" y="16" width="122" height="122"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="2zk-nB-u0f">
+                                                    <rect key="frame" x="0.0" y="0.0" width="154" height="154"/>
                                                 </imageView>
                                             </subviews>
                                         </view>
                                         <constraints>
-                                            <constraint firstItem="2zk-nB-u0f" firstAttribute="leading" secondItem="PVL-n7-2Jd" secondAttribute="leading" constant="16" id="CZ3-wW-85M"/>
-                                            <constraint firstAttribute="trailing" secondItem="2zk-nB-u0f" secondAttribute="trailing" constant="16" id="DRe-3e-NS5"/>
-                                            <constraint firstItem="2zk-nB-u0f" firstAttribute="top" secondItem="PVL-n7-2Jd" secondAttribute="top" constant="16" id="Okr-uJ-1Mg"/>
-                                            <constraint firstAttribute="bottom" secondItem="2zk-nB-u0f" secondAttribute="bottom" constant="16" id="lEv-tC-gxX"/>
+                                            <constraint firstItem="2zk-nB-u0f" firstAttribute="leading" secondItem="PVL-n7-2Jd" secondAttribute="leading" id="CZ3-wW-85M"/>
+                                            <constraint firstAttribute="trailing" secondItem="2zk-nB-u0f" secondAttribute="trailing" id="DRe-3e-NS5"/>
+                                            <constraint firstItem="2zk-nB-u0f" firstAttribute="top" secondItem="PVL-n7-2Jd" secondAttribute="top" id="Okr-uJ-1Mg"/>
+                                            <constraint firstAttribute="bottom" secondItem="2zk-nB-u0f" secondAttribute="bottom" id="lEv-tC-gxX"/>
                                         </constraints>
                                         <connections>
-                                            <outlet property="assetImageView" destination="2zk-nB-u0f" id="N8m-Vh-qsu"/>
+                                            <outlet property="catImageView" destination="2zk-nB-u0f" id="N8m-Vh-qsu"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -71,8 +71,8 @@
                                     <outlet property="delegate" destination="1gk-bh-oRb" id="hkM-PL-4ah"/>
                                 </connections>
                             </collectionView>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="sUM-vu-EG5">
-                                <rect key="frame" x="177.5" y="291.5" width="20" height="20"/>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="sUM-vu-EG5">
+                                <rect key="frame" x="169" y="283" width="37" height="37"/>
                             </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="yfF-ZA-ATj"/>
@@ -86,7 +86,7 @@
                             <constraint firstItem="KPK-II-9dp" firstAttribute="top" secondItem="yfF-ZA-ATj" secondAttribute="top" id="lGC-1S-yb5"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Cat Gallery" id="OcC-v3-1fR">
+                    <navigationItem key="navigationItem" title="Cats  😺" id="OcC-v3-1fR">
                         <barButtonItem key="rightBarButtonItem" title="Reset" id="oJD-5h-EMb">
                             <connections>
                                 <action selector="resetButtonPressed:" destination="1gk-bh-oRb" id="Hop-7s-Awc"/>
