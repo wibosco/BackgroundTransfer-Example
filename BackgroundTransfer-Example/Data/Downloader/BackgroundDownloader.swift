@@ -26,19 +26,22 @@ class BackgroundDownloader: NSObject {
     
     // MARK: - Download
     
-    func download(remoteURL: URL, filePathURL: URL, completionHandler: @escaping ForegroundDownloadCompletionHandler) {
+    func download(remoteURL: URL, 
+                  localURL: URL,
+                  completionHandler: @escaping ForegroundDownloadCompletionHandler) {
         if let downloadItem = context.loadDownloadItem(withURL: remoteURL) {
             os_log(.info, "Already downloading: %{public}@", remoteURL.absoluteString)
+            
             downloadItem.foregroundCompletionHandler = completionHandler
         } else {
             os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
             
-            let downloadItem = DownloadItem(remoteURL: remoteURL, filePathURL: filePathURL)
+            let downloadItem = DownloadItem(remoteURL: remoteURL, localURL: localURL)
             downloadItem.foregroundCompletionHandler = completionHandler
             context.saveDownloadItem(downloadItem)
             
             let task = session.downloadTask(with: remoteURL)
-            task.earliestBeginDate = Date().addingTimeInterval(20) // Added a delay for demonstration purposes only
+            task.earliestBeginDate = Date().addingTimeInterval(2) // Added a delay for demonstration purposes only
             task.resume()
         }
     }
@@ -61,18 +64,19 @@ extension BackgroundDownloader: URLSessionDelegate {
 extension BackgroundDownloader: URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let originalRequestURL = downloadTask.originalRequest?.url, let downloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
+        guard let originalRequestURL = downloadTask.originalRequest?.url, 
+                let downloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
             return
         }
-    
-        print("Downloaded: \(downloadItem.remoteURL)")
+        
+        os_log(.info, "Downloaded: %{public}@", downloadItem.remoteURL.absoluteString)
         
         do {
-            try fileManager.moveItem(at: location, to: downloadItem.filePathURL)
+            try fileManager.moveItem(at: location, to: downloadItem.localURL)
             
-            downloadItem.foregroundCompletionHandler?(.success(downloadItem.filePathURL))
+            downloadItem.foregroundCompletionHandler?(.success(downloadItem.localURL))
         } catch {
-            downloadItem.foregroundCompletionHandler?(.failure(APIError.invalidData))
+            downloadItem.foregroundCompletionHandler?(.failure(error))
         }
         
        context.deleteDownloadItem(downloadItem)

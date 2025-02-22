@@ -8,22 +8,23 @@
 
 import Foundation
 
-typealias ForegroundDownloadCompletionHandler = ((_ result: DataRequestResult<URL>) -> Void)
+typealias ForegroundDownloadCompletionHandler = ((_ result: Result<URL, Error>) -> Void)
 
-class DownloadItem: Codable {
+class DownloadItem: Codable { // TODO: Make into a struct?
     let remoteURL: URL
-    let filePathURL: URL
+    let localURL: URL
     var foregroundCompletionHandler: ForegroundDownloadCompletionHandler?
     
     private enum CodingKeys: String, CodingKey {
         case remoteURL
-        case filePathURL
+        case localURL
     }
     
     // MARK: - Init
     
-    init(remoteURL: URL, filePathURL: URL) {
+    init(remoteURL: URL, 
+         localURL: URL) {
         self.remoteURL = remoteURL
-        self.filePathURL = filePathURL
+        self.localURL = localURL
     }
 }
