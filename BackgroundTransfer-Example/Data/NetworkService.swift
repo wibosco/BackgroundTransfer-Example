@@ -24,6 +24,10 @@ class NetworkService {
     // MARK: - Cats
     
     func retrieveCats(completionHandler: @escaping ((Result<[Cat], Error>) -> ()))  {
+        let APIKey = "live_yzNvM2rsrxvWpSwtsAWzbSiGoGW175yNLmnO1u5Fh5GMFxbZ9l4C01t9BcP2v6WQ"
+        
+        assert(APIKey.isEmpty, "Replace this empty string with your API key from: https://thecatapi.com/")
+        
         let limitQueryItem = URLQueryItem(name: "limit", value: "50")
         let sizeQueryItem = URLQueryItem(name: "size", value: "thumb")
         
@@ -37,7 +41,7 @@ class NetworkService {
         
         var urlRequest = URLRequest(url: components.url!)
         urlRequest.httpMethod = "GET"
-        urlRequest.addValue("live_yzNvM2rsrxvWpSwtsAWzbSiGoGW175yNLmnO1u5Fh5GMFxbZ9l4C01t9BcP2v6WQ", forHTTPHeaderField: "x-api-key")
+        urlRequest.addValue(APIKey, forHTTPHeaderField: "x-api-key")
         
         os_log(.error, "Retrieving cats...")
         
