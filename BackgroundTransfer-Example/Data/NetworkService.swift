@@ -26,7 +26,7 @@ class NetworkService {
     func retrieveCats(completionHandler: @escaping ((Result<[Cat], Error>) -> ()))  {
         let APIKey = "live_yzNvM2rsrxvWpSwtsAWzbSiGoGW175yNLmnO1u5Fh5GMFxbZ9l4C01t9BcP2v6WQ"
         
-        assert(APIKey.isEmpty, "Replace this empty string with your API key from: https://thecatapi.com/")
+        assert(!APIKey.isEmpty, "Replace this empty string with your API key from: https://thecatapi.com/")
         
         let limitQueryItem = URLQueryItem(name: "limit", value: "50")
         let sizeQueryItem = URLQueryItem(name: "size", value: "thumb")

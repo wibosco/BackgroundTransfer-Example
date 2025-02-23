@@ -9,7 +9,7 @@
 import Foundation
 
 protocol DownloadItemStore {
-    func loadDownloadItem(withURL url: URL) -> BackgroundDownloadItem?
+    func downloadItem(withURL url: URL) -> BackgroundDownloadItem?
     func saveDownloadItem(_ downloadItem: BackgroundDownloadItem)
     func deleteDownloadItem(_ downloadItem: BackgroundDownloadItem)
 }
@@ -19,7 +19,7 @@ class MemoryStore: DownloadItemStore {
     
     // MARK: - Load
     
-    func loadDownloadItem(withURL url: URL) -> BackgroundDownloadItem? {
+    func downloadItem(withURL url: URL) -> BackgroundDownloadItem? {
         return downloadItems[url]
     }
     
@@ -47,7 +47,7 @@ class UserDefaultsStore: DownloadItemStore {
     
     // MARK: - Load
     
-    func loadDownloadItem(withURL url: URL) -> BackgroundDownloadItem? {
+    func downloadItem(withURL url: URL) -> BackgroundDownloadItem? {
         guard let encodedData = userDefaults.object(forKey: url.path) as? Data else {
             return nil
         }
@@ -89,7 +89,7 @@ class BackgroundDownloadItemStore {
     
     func downloadItem(withURL url: URL) -> BackgroundDownloadItem? {
         queue.sync {
-            return inMemoryStore.loadDownloadItem(withURL: url) ?? persistentStore.loadDownloadItem(withURL: url)
+            return inMemoryStore.downloadItem(withURL: url) ?? persistentStore.downloadItem(withURL: url)
         }
     }
 
