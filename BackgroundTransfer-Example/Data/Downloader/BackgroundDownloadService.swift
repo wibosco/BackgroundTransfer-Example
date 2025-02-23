@@ -17,7 +17,9 @@ class BackgroundDownloadService: NSObject {
     private lazy var session: URLSession = {
         let configuration = URLSessionConfiguration.background(withIdentifier: "com.williamboles.background.download.session")
         configuration.sessionSendsLaunchEvents = true
-        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        let session = URLSession(configuration: configuration, 
+                                 delegate: self,
+                                 delegateQueue: nil)
         
         return session
     }()
@@ -53,9 +55,8 @@ class BackgroundDownloadService: NSObject {
 
 extension BackgroundDownloadService: URLSessionDelegate {
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        // if I reach out to the appdelegate to get the completion handler does that mean this type doesn't need to be a singleton?
-        
         DispatchQueue.main.async {
+            // needs to be called on the main queue
             self.backgroundCompletionHandler?()
             self.backgroundCompletionHandler = nil
         }
@@ -66,12 +67,19 @@ extension BackgroundDownloadService: URLSessionDelegate {
 
 extension BackgroundDownloadService: URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let originalRequestURL = downloadTask.originalRequest?.url, 
-                let existingDownloadItem = store.downloadItem(withURL: originalRequestURL) else {
+        guard let originalRequestURL = downloadTask.originalRequest?.url else {
+            os_log(.error, "Unexpected nil URL")
+            
             return
         }
         
-        os_log(.info, "Downloaded: %{public}@", existingDownloadItem.remoteURL.absoluteString)
+        guard let existingDownloadItem = store.downloadItem(withURL: originalRequestURL) else {
+            os_log(.error, "Unable to find existing download item for: %{public}@", originalRequestURL.absoluteString)
+            
+            return
+        }
+        
+        os_log(.info, "Downloaded: %{public}@", originalRequestURL.absoluteString)
         
         do {
             try fileManager.moveItem(at: location, 

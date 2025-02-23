@@ -28,11 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         //Exit app to test restoring app from a terminated state. Comment out to test restoring app from a suspended state.
         DispatchQueue.main.asyncAfter(deadline: .now()) {
-            os_log(.info, "App is about to quit")
-
-            if let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
-                os_log(.info, "Gallery assets will be saved to: %{public}@", documentsPath)
-            }
+            os_log(.info, "Simulating app termination by exit(0)")
+            
             exit(0)
         }
     }
