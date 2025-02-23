@@ -17,21 +17,37 @@ class ImageLoader {
     func loadImage(name: String,
                    url: URL,
                    completionHandler: @escaping ((_ result: Result<UIImage, Error>) -> ())) {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        let documentsDirectoryURL = paths[0]
-        let localImageURL = documentsDirectoryURL.appendingPathComponent(name)
-            
-        if let image = loadLocalImage(localImageURL: localImageURL) {
-            completionHandler(.success(image))
-        } else {
-            loadRemoteImage(remoteImageURL: url,
-                            localImageURL: localImageURL,
-                            completionHandler: completionHandler)
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            let fileManager = FileManager.default
+            let paths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+            let documentsDirectoryURL = paths[0]
+            let localImageURL = documentsDirectoryURL.appendingPathComponent(name)
+                
+            if fileManager.fileExists(atPath: localImageURL.path) {
+                self?.loadLocalImage(localImageURL: localImageURL,
+                                     completionHandler: completionHandler)
+            } else {
+                self?.loadRemoteImage(remoteImageURL: url,
+                                      localImageURL: localImageURL,
+                                      completionHandler: completionHandler)
+            }
         }
     }
     
-    private func loadLocalImage(localImageURL: URL) -> UIImage? {
-        return UIImage(contentsOfFile: localImageURL.path)
+    private func loadLocalImage(localImageURL: URL,
+                                completionHandler: @escaping ((_  result: Result<UIImage, Error>) -> ())) {
+        guard let imageData = try? Data(contentsOf: localImageURL) else {
+            // TODO: Handle error
+            return
+        }
+        
+        DispatchQueue.main.async {
+            guard let image = UIImage(data: imageData) else {
+                // TODO: Handle error
+                return
+            }
+            completionHandler(.success(image))
+        }
     }
     
     private func loadRemoteImage(remoteImageURL: URL,
@@ -41,11 +57,8 @@ class ImageLoader {
                                       localURL: localImageURL) { [weak self] result in
             switch result {
             case let .success(url):
-                guard  let image = self?.loadLocalImage(localImageURL: url) else {
-                    // TODO: Handle error
-                    return
-                }
-                completionHandler(.success(image))
+                self?.loadLocalImage(localImageURL: url,
+                                     completionHandler: completionHandler)
             case let .failure(error):
                 completionHandler(.failure(error))
             }

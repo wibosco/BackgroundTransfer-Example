@@ -73,34 +73,35 @@ class UserDefaultsStore: DownloadItemStore {
 }
 
 class BackgroundDownloaderContext {
-    private let inMemoryStore: DownloadItemStore
-    private let persistentStore: DownloadItemStore
-        
-    // MARK: - Init
+    private let inMemoryStore = MemoryStore()
+    private let persistentStore = UserDefaultsStore()
     
-    init(inMemoryStore: DownloadItemStore = MemoryStore(),
-         persistentStore: DownloadItemStore = UserDefaultsStore()) {
-        self.inMemoryStore = inMemoryStore
-        self.persistentStore = persistentStore
-    }
-    
+    private let queue = DispatchQueue(label: "com.williamboles.background.download.context", 
+                                      attributes: .concurrent)
+
     // MARK: - Load
     
     func loadDownloadItem(withURL url: URL) -> DownloadItem? {
-        return inMemoryStore.loadDownloadItem(withURL: url) ?? persistentStore.loadDownloadItem(withURL: url)
+        queue.sync {
+            return inMemoryStore.loadDownloadItem(withURL: url) ?? persistentStore.loadDownloadItem(withURL: url)
+        }
     }
 
     // MARK: - Save
     
     func saveDownloadItem(_ downloadItem: DownloadItem) {
-        inMemoryStore.saveDownloadItem(downloadItem)
-        persistentStore.saveDownloadItem(downloadItem)
+        queue.async(flags: .barrier) { [weak self] in
+            self?.inMemoryStore.saveDownloadItem(downloadItem)
+            self?.persistentStore.saveDownloadItem(downloadItem)
+        }
     }
     
     // MARK: - Delete
     
     func deleteDownloadItem(_ downloadItem: DownloadItem) {
-        inMemoryStore.deleteDownloadItem(downloadItem)
-        persistentStore.deleteDownloadItem(downloadItem)
+        queue.async(flags: .barrier) { [weak self] in
+            self?.inMemoryStore.deleteDownloadItem(downloadItem)
+            self?.persistentStore.deleteDownloadItem(downloadItem)
+        }
     }
 }

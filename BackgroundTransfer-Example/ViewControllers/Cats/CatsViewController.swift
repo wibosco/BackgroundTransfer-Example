@@ -39,7 +39,8 @@ extension CatsViewController: UICollectionViewDataSource {
         }
 
         viewModel.loadCatImage(at: indexPath) { (image, imageIndexPath) in
-            guard indexPath == imageIndexPath else {
+            guard let cellCurrentIndexPath = collectionView.indexPath(for: cell), 
+                    cellCurrentIndexPath == imageIndexPath else {
                 return
             }
             

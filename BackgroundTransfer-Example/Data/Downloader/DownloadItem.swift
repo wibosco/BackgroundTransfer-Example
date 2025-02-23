@@ -10,7 +10,7 @@ import Foundation
 
 typealias ForegroundDownloadCompletionHandler = ((_ result: Result<URL, Error>) -> Void)
 
-class DownloadItem: Codable { // TODO: Make into a struct?
+class DownloadItem: Codable {
     let remoteURL: URL
     let localURL: URL
     var foregroundCompletionHandler: ForegroundDownloadCompletionHandler?

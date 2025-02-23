@@ -12,12 +12,14 @@ import UIKit
 
 class CatsViewModel {
     private var cats: [Cat] = []
+    
+    private let networkService = NetworkService()
     private let imageLoader = ImageLoader()
         
     // MARK: - Retrieval
     
     func retrieveCats(completion: @escaping (() -> ())) {        
-        NetworkService().retrieveCats { [weak self] result in
+        networkService.retrieveCats { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(cats):
