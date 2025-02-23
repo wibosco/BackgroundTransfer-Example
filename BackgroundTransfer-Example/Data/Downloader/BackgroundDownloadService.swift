@@ -1,5 +1,5 @@
 //
-//  BackgroundDownloader.swift
+//  BackgroundDownloadService.swift
 //  BackgroundTransfer-Example
 //
 //  Created by William Boles on 02/05/2018.
@@ -9,39 +9,41 @@
 import Foundation
 import os
 
-class BackgroundDownloader: NSObject {
+class BackgroundDownloadService: NSObject {
     var backgroundCompletionHandler: (() -> Void)?
     
     private let fileManager = FileManager.default
-    private let context = BackgroundDownloaderContext()
+    private let store = BackgroundDownloadItemStore()
     private lazy var session: URLSession = {
         let configuration = URLSessionConfiguration.background(withIdentifier: "com.williamboles.background.download.session")
+        configuration.sessionSendsLaunchEvents = true
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        
         return session
     }()
     
     // MARK: - Singleton
     
-    static let shared = BackgroundDownloader()
+    static let shared = BackgroundDownloadService()
     
     // MARK: - Download
     
     func download(remoteURL: URL, 
                   localURL: URL,
-                  completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        if let existingDownloadItem = context.loadDownloadItem(withURL: remoteURL) {
+                  completionHandler: @escaping ((_ result: Result<URL, Error>) -> Void)) {
+        if let existingDownloadItem = store.downloadItem(withURL: remoteURL) {
             os_log(.info, "Already downloading: %{public}@", remoteURL.absoluteString)
 
             existingDownloadItem.foregroundCompletionHandler = completionHandler
         } else {
             os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
             
-            let downloadItem = DownloadItem(remoteURL: remoteURL, localURL: localURL)
+            let downloadItem = BackgroundDownloadItem(remoteURL: remoteURL, localURL: localURL)
             downloadItem.foregroundCompletionHandler = completionHandler
-            context.saveDownloadItem(downloadItem)
+            store.saveDownloadItem(downloadItem)
             
             let task = session.downloadTask(with: remoteURL)
-            task.earliestBeginDate = Date().addingTimeInterval(2) // Added a delay for demonstration purposes only
+            task.earliestBeginDate = Date().addingTimeInterval(2) // Remove this in production, the delay was added for demonstration purposes only
             task.resume()
         }
     }
@@ -49,8 +51,10 @@ class BackgroundDownloader: NSObject {
 
 // MARK: - URLSessionDelegate
 
-extension BackgroundDownloader: URLSessionDelegate {
+extension BackgroundDownloadService: URLSessionDelegate {
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        // if I reach out to the appdelegate to get the completion handler does that mean this type doesn't need to be a singleton?
+        
         DispatchQueue.main.async {
             self.backgroundCompletionHandler?()
             self.backgroundCompletionHandler = nil
@@ -60,10 +64,10 @@ extension BackgroundDownloader: URLSessionDelegate {
 
 // MARK: - URLSessionDownloadDelegate
 
-extension BackgroundDownloader: URLSessionDownloadDelegate {
+extension BackgroundDownloadService: URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let originalRequestURL = downloadTask.originalRequest?.url, 
-                let existingDownloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
+                let existingDownloadItem = store.downloadItem(withURL: originalRequestURL) else {
             return
         }
         
@@ -78,6 +82,6 @@ extension BackgroundDownloader: URLSessionDownloadDelegate {
             existingDownloadItem.foregroundCompletionHandler?(.failure(error))
         }
         
-       context.deleteDownloadItem(existingDownloadItem)
+       store.deleteDownloadItem(existingDownloadItem)
     }
 }

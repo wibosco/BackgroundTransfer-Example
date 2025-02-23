@@ -27,7 +27,7 @@ class CatsViewModel {
                     
                     completion()
                 case let .failure(error):
-                    //TODO: Handle
+                    // TODO: Handle
                     os_log(.error, "Error when retrieving json: %{public}@", error.localizedDescription)
                 }
             }

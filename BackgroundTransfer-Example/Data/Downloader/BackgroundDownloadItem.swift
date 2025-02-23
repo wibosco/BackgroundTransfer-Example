@@ -8,12 +8,10 @@
 
 import Foundation
 
-typealias ForegroundDownloadCompletionHandler = ((_ result: Result<URL, Error>) -> Void)
-
-class DownloadItem: Codable {
+class BackgroundDownloadItem: Codable {
     let remoteURL: URL
     let localURL: URL
-    var foregroundCompletionHandler: ForegroundDownloadCompletionHandler?
+    var foregroundCompletionHandler: ((_ result: Result<URL, Error>) -> Void)?
     
     private enum CodingKeys: String, CodingKey {
         case remoteURL

@@ -9,8 +9,13 @@
 import Foundation
 import UIKit
 
+enum ImageLoaderError: Error {
+    case missingData
+    case invalidImageData
+}
+
 class ImageLoader {
-    private let backgroundDownloader = BackgroundDownloader()
+    private let backgroundDownloader = BackgroundDownloadService()
     
     // MARK: - Load
     
@@ -37,13 +42,13 @@ class ImageLoader {
     private func loadLocalImage(localImageURL: URL,
                                 completionHandler: @escaping ((_  result: Result<UIImage, Error>) -> ())) {
         guard let imageData = try? Data(contentsOf: localImageURL) else {
-            // TODO: Handle error
+            completionHandler(.failure(ImageLoaderError.missingData))
             return
         }
         
         DispatchQueue.main.async {
             guard let image = UIImage(data: imageData) else {
-                // TODO: Handle error
+                completionHandler(.failure(ImageLoaderError.invalidImageData))
                 return
             }
             completionHandler(.success(image))

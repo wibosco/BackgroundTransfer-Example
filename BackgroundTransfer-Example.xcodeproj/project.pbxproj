@@ -18,9 +18,9 @@
 		43896B7B2D6906CE00FF34F8 /* CatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43896B792D6906CE00FF34F8 /* CatsViewController.swift */; };
 		43896B7D2D6909A600FF34F8 /* CatsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43896B7C2D6909A600FF34F8 /* CatsViewModel.swift */; };
 		43896B7F2D6914A000FF34F8 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43896B7E2D6914A000FF34F8 /* ImageLoader.swift */; };
-		C2CA0B3420CC0415005B3846 /* BackgroundDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */; };
-		C2D4C8D820D805A400C740CA /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D720D805A400C740CA /* DownloadItem.swift */; };
-		C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */; };
+		C2CA0B3420CC0415005B3846 /* BackgroundDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2CA0B3220CC0415005B3846 /* BackgroundDownloadService.swift */; };
+		C2D4C8D820D805A400C740CA /* BackgroundDownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D720D805A400C740CA /* BackgroundDownloadItem.swift */; };
+		C2D4C8DA20D80DB200C740CA /* BackgroundDownloadItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D4C8D920D80DB200C740CA /* BackgroundDownloadItemStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,9 +49,9 @@
 		43896B792D6906CE00FF34F8 /* CatsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatsViewController.swift; sourceTree = "<group>"; };
 		43896B7C2D6909A600FF34F8 /* CatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatsViewModel.swift; sourceTree = "<group>"; };
 		43896B7E2D6914A000FF34F8 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
-		C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloader.swift; sourceTree = "<group>"; };
-		C2D4C8D720D805A400C740CA /* DownloadItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadItem.swift; sourceTree = "<group>"; };
-		C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloaderContext.swift; sourceTree = "<group>"; };
+		C2CA0B3220CC0415005B3846 /* BackgroundDownloadService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadService.swift; sourceTree = "<group>"; };
+		C2D4C8D720D805A400C740CA /* BackgroundDownloadItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadItem.swift; sourceTree = "<group>"; };
+		C2D4C8D920D80DB200C740CA /* BackgroundDownloadItemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadItemStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,9 +201,9 @@
 		C2CA0B3120CC0415005B3846 /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
-				C2CA0B3220CC0415005B3846 /* BackgroundDownloader.swift */,
-				C2D4C8D920D80DB200C740CA /* BackgroundDownloaderContext.swift */,
-				C2D4C8D720D805A400C740CA /* DownloadItem.swift */,
+				C2CA0B3220CC0415005B3846 /* BackgroundDownloadService.swift */,
+				C2D4C8D920D80DB200C740CA /* BackgroundDownloadItemStore.swift */,
+				C2D4C8D720D805A400C740CA /* BackgroundDownloadItem.swift */,
 			);
 			path = Downloader;
 			sourceTree = "<group>";
@@ -318,16 +318,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2D4C8DA20D80DB200C740CA /* BackgroundDownloaderContext.swift in Sources */,
+				C2D4C8DA20D80DB200C740CA /* BackgroundDownloadItemStore.swift in Sources */,
 				43896B7A2D6906CE00FF34F8 /* CatCollectionViewCell.swift in Sources */,
 				43896B7F2D6914A000FF34F8 /* ImageLoader.swift in Sources */,
-				C2CA0B3420CC0415005B3846 /* BackgroundDownloader.swift in Sources */,
+				C2CA0B3420CC0415005B3846 /* BackgroundDownloadService.swift in Sources */,
 				3DEAF27720947086004FE44E /* AppDelegate.swift in Sources */,
 				3DEAF2AA20948C8A004FE44E /* NSObject+Name.swift in Sources */,
 				43896B7B2D6906CE00FF34F8 /* CatsViewController.swift in Sources */,
 				43896B752D68FE9800FF34F8 /* NetworkService.swift in Sources */,
 				43896B7D2D6909A600FF34F8 /* CatsViewModel.swift in Sources */,
-				C2D4C8D820D805A400C740CA /* DownloadItem.swift in Sources */,
+				C2D4C8D820D805A400C740CA /* BackgroundDownloadItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
