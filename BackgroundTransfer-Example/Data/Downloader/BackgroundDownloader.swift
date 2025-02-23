@@ -15,7 +15,7 @@ class BackgroundDownloader: NSObject {
     private let fileManager = FileManager.default
     private let context = BackgroundDownloaderContext()
     private lazy var session: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: "background.download.session")
+        let configuration = URLSessionConfiguration.background(withIdentifier: "com.williamboles.background.download.session")
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         return session
     }()
@@ -29,10 +29,10 @@ class BackgroundDownloader: NSObject {
     func download(remoteURL: URL, 
                   localURL: URL,
                   completionHandler: @escaping ForegroundDownloadCompletionHandler) {
-        if let downloadItem = context.loadDownloadItem(withURL: remoteURL) {
+        if let existingDownloadItem = context.loadDownloadItem(withURL: remoteURL) {
             os_log(.info, "Already downloading: %{public}@", remoteURL.absoluteString)
-            
-            downloadItem.foregroundCompletionHandler = completionHandler
+
+            existingDownloadItem.foregroundCompletionHandler = completionHandler
         } else {
             os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
             
@@ -50,7 +50,6 @@ class BackgroundDownloader: NSObject {
 // MARK: - URLSessionDelegate
 
 extension BackgroundDownloader: URLSessionDelegate {
-    
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
         DispatchQueue.main.async {
             self.backgroundCompletionHandler?()
@@ -62,23 +61,23 @@ extension BackgroundDownloader: URLSessionDelegate {
 // MARK: - URLSessionDownloadDelegate
 
 extension BackgroundDownloader: URLSessionDownloadDelegate {
-    
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let originalRequestURL = downloadTask.originalRequest?.url, 
-                let downloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
+                let existingDownloadItem = context.loadDownloadItem(withURL: originalRequestURL) else {
             return
         }
         
-        os_log(.info, "Downloaded: %{public}@", downloadItem.remoteURL.absoluteString)
+        os_log(.info, "Downloaded: %{public}@", existingDownloadItem.remoteURL.absoluteString)
         
         do {
-            try fileManager.moveItem(at: location, to: downloadItem.localURL)
+            try fileManager.moveItem(at: location, 
+                                     to: existingDownloadItem.localURL)
             
-            downloadItem.foregroundCompletionHandler?(.success(downloadItem.localURL))
+            existingDownloadItem.foregroundCompletionHandler?(.success(existingDownloadItem.localURL))
         } catch {
-            downloadItem.foregroundCompletionHandler?(.failure(error))
+            existingDownloadItem.foregroundCompletionHandler?(.failure(error))
         }
         
-       context.deleteDownloadItem(downloadItem)
+       context.deleteDownloadItem(existingDownloadItem)
     }
 }

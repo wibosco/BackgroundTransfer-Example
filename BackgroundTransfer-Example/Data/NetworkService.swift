@@ -24,7 +24,7 @@ class NetworkService {
     // MARK: - Cats
     
     func retrieveCats(completionHandler: @escaping ((Result<[Cat], Error>) -> ()))  {
-        let limitQueryItem = URLQueryItem(name: "limit", value: "100")
+        let limitQueryItem = URLQueryItem(name: "limit", value: "50")
         let sizeQueryItem = URLQueryItem(name: "size", value: "thumb")
         
         let queryItems = [limitQueryItem, sizeQueryItem]
