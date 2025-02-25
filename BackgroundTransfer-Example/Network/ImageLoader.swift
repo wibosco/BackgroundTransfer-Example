@@ -15,7 +15,7 @@ enum ImageLoaderError: Error {
 }
 
 class ImageLoader {
-    private let backgroundDownloader = BackgroundDownloadService()
+    private let backgroundDownloader = BackgroundDownloadService.shared
     
     // MARK: - Load
     
@@ -58,8 +58,8 @@ class ImageLoader {
     private func loadRemoteImage(remoteImageURL: URL,
                                  localImageURL: URL,
                                  completionHandler: @escaping ((_  result: Result<UIImage, Error>) -> ())) {
-        backgroundDownloader.download(remoteURL: remoteImageURL,
-                                      localURL: localImageURL) { [weak self] result in
+        backgroundDownloader.download(from: remoteImageURL,
+                                      saveDownloadTo: localImageURL) { [weak self] result in
             switch result {
             case let .success(url):
                 self?.loadLocalImage(localImageURL: url,
