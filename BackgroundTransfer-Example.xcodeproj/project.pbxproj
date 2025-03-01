@@ -89,9 +89,9 @@
 		3DA8110F20946F5D007F6272 /* BackgroundTransfer-Example */ = {
 			isa = PBXGroup;
 			children = (
-				438F85432D6E241D00AF956D /* Network */,
 				3DEAF26C20947086004FE44E /* Application */,
 				3DEAF29A20948C8A004FE44E /* Extensions */,
+				438F85432D6E241D00AF956D /* Network */,
 				3DEAF26F20947086004FE44E /* Resources */,
 				3DEAF27120947086004FE44E /* Storyboards */,
 				3DEAF26A20947086004FE44E /* ViewControllers */,

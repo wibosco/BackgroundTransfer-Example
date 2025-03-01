@@ -14,10 +14,9 @@ class BackgroundDownloadService: NSObject {
     
     private var session: URLSession!
     
-    private let fileManager = FileManager.default
-    private var userDefaults = UserDefaults.standard
-    
     private var foregroundCompletionHandlers = [String: ((result: Result<URL, Error>) -> ())]()
+    
+    private var userDefaults = UserDefaults.standard
     
     private let queue = DispatchQueue(label: "com.williamboles.background.download.service")
     
@@ -88,8 +87,8 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
             }
             
             do {
-                try self?.fileManager.moveItem(at: location,
-                                               to: saveDownloadToURL)
+                try FileManager.default.moveItem(at: location,
+                                                 to: saveDownloadToURL)
                 
                 self?.foregroundCompletionHandlers[originalRequestURL]?(.success(saveDownloadToURL))
             } catch {
