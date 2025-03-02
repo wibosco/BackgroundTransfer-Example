@@ -9,12 +9,19 @@
 import Foundation
 import os
 
+enum BackgroundDownloadServiceError: Error {
+    case missingInstructionsError
+    case fileSystemError(_ underlyingError: Error)
+    case networkError(_ underlyingError: Error)
+    case unknownError
+}
+
 class BackgroundDownloadService: NSObject {
     var backgroundCompletionHandler: (() -> Void)?
     
     private var session: URLSession!
     
-    private var foregroundCompletionHandlers = [String: ((result: Result<URL, Error>) -> ())]()
+    private var foregroundCompletionHandlers = [String: ((result: Result<URL, BackgroundDownloadServiceError>) -> ())]()
     
     private var userDefaults = UserDefaults.standard
     
@@ -41,7 +48,7 @@ class BackgroundDownloadService: NSObject {
     
     func download(from remoteURL: URL,
                   saveDownloadTo localURL: URL,
-                  completionHandler: @escaping ((_ result: Result<URL, Error>) -> ())) {
+                  completionHandler: @escaping ((_ result: Result<URL, BackgroundDownloadServiceError>) -> ())) {
         queue.async { [weak self] in
             os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
             
@@ -55,33 +62,30 @@ class BackgroundDownloadService: NSObject {
     }
 }
 
-// MARK: - URLSessionDelegate
-
-extension BackgroundDownloadService: URLSessionDelegate {
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        DispatchQueue.main.async {
-            // needs to be called on the main queue
-            self.backgroundCompletionHandler?()
-            self.backgroundCompletionHandler = nil
-        }
-    }
-}
-
 // MARK: - URLSessionDownloadDelegate
 
 extension BackgroundDownloadService: URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        queue.sync { [weak self] in
+        queue.sync {
             guard let originalRequestURL = downloadTask.originalRequest?.url?.absoluteString else {
                 os_log(.error, "Unexpected nil URL")
+                // Unable to call the closure here as we use originalRequestURL as the key to retrieve the closure
                 
                 return
             }
             
+            defer {
+                self.foregroundCompletionHandlers[originalRequestURL] = nil
+                self.userDefaults.removeObject(forKey: originalRequestURL)
+            }
+            
             os_log(.info, "Downloaded: %{public}@", originalRequestURL)
             
-            guard let saveDownloadToURL = self?.userDefaults.url(forKey: originalRequestURL) else {
+            let foregroundCompletionHandler = self.foregroundCompletionHandlers[originalRequestURL]
+            
+            guard let saveDownloadToURL = self.userDefaults.url(forKey: originalRequestURL) else {
                 os_log(.error, "Unable to find existing download item for: %{public}@", originalRequestURL)
+                foregroundCompletionHandler?(.failure(.missingInstructionsError))
                 
                 return
             }
@@ -90,12 +94,46 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
                 try FileManager.default.moveItem(at: location,
                                                  to: saveDownloadToURL)
                 
-                self?.foregroundCompletionHandlers[originalRequestURL]?(.success(saveDownloadToURL))
+                foregroundCompletionHandler?(.success(saveDownloadToURL))
             } catch {
-                self?.foregroundCompletionHandlers[originalRequestURL]?(.failure(error))
+                foregroundCompletionHandler?(.failure(.fileSystemError(error)))
+            }
+        }
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        queue.async { [weak self] in
+            guard let originalRequestURL = task.originalRequest?.url?.absoluteString else {
+                os_log(.error, "Unexpected nil URL")
+                
+                return
             }
             
-            self?.userDefaults.removeObject(forKey: originalRequestURL)
+            defer {
+                self?.foregroundCompletionHandlers[originalRequestURL] = nil
+                self?.userDefaults.removeObject(forKey: originalRequestURL)
+            }
+            
+            os_log(.info, "Download failed for: %{public}@", originalRequestURL)
+            
+            let foregroundCompletionHandler = self?.foregroundCompletionHandlers[originalRequestURL]
+            
+            guard let error = error else {
+                os_log(.error, "Unknown error caused download to fail for: %{public}@", originalRequestURL)
+                foregroundCompletionHandler?(.failure(.unknownError))
+                
+                return
+            }
+            
+            foregroundCompletionHandler?(.failure(.networkError(error)))
+        }
+    }
+    
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        DispatchQueue.main.async {
+            // needs to be called on the main queue
+            self.backgroundCompletionHandler?()
+            self.backgroundCompletionHandler = nil
         }
     }
 }
