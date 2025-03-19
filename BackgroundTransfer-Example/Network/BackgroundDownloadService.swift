@@ -12,8 +12,9 @@ import os
 enum BackgroundDownloadServiceError: Error {
     case missingInstructionsError
     case fileSystemError(_ underlyingError: Error)
-    case networkError(_ underlyingError: Error)
-    case unknownError
+    case networkError(_ underlyingError: Error?)
+    case unexpectedResponseError
+    case unexpectedStatusCode
 }
 
 class BackgroundDownloadService: NSObject {
@@ -22,9 +23,7 @@ class BackgroundDownloadService: NSObject {
     private var session: URLSession!
     
     private var foregroundCompletionHandlers = [String: ((result: Result<URL, BackgroundDownloadServiceError>) -> ())]()
-    
-    private var userDefaults = UserDefaults.standard
-    
+        
     private let queue = DispatchQueue(label: "com.williamboles.background.download.service")
     
     // MARK: - Singleton
@@ -53,7 +52,7 @@ class BackgroundDownloadService: NSObject {
             os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
             
             self?.foregroundCompletionHandlers[remoteURL.absoluteString] = completionHandler
-            self?.userDefaults.set(localURL, forKey: remoteURL.absoluteString)
+            UserDefaults.standard.set(localURL, forKey: remoteURL.absoluteString)
             
             let task = self?.session.downloadTask(with: remoteURL)
             task?.earliestBeginDate = Date().addingTimeInterval(2) // Remove this in production, the delay was added for demonstration purposes only
@@ -65,7 +64,9 @@ class BackgroundDownloadService: NSObject {
 // MARK: - URLSessionDownloadDelegate
 
 extension BackgroundDownloadService: URLSessionDownloadDelegate {
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+    func urlSession(_ session: URLSession, 
+                    downloadTask: URLSessionDownloadTask,
+                    didFinishDownloadingTo location: URL) {
         queue.sync {
             guard let originalRequestURL = downloadTask.originalRequest?.url?.absoluteString else {
                 os_log(.error, "Unexpected nil URL")
@@ -76,14 +77,28 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
             
             defer {
                 self.foregroundCompletionHandlers[originalRequestURL] = nil
-                self.userDefaults.removeObject(forKey: originalRequestURL)
+                UserDefaults.standard.removeObject(forKey: originalRequestURL)
             }
             
-            os_log(.info, "Downloaded: %{public}@", originalRequestURL)
+            os_log(.info, "Download request completed for: %{public}@", originalRequestURL)
             
             let foregroundCompletionHandler = self.foregroundCompletionHandlers[originalRequestURL]
             
-            guard let saveDownloadToURL = self.userDefaults.url(forKey: originalRequestURL) else {
+            guard let response = downloadTask.response as? HTTPURLResponse else {
+                os_log(.error, "Unexpected response for: %{public}@", originalRequestURL)
+                foregroundCompletionHandler?(.failure(.unexpectedResponseError))
+                return
+            }
+            
+            guard response.statusCode == 200 else {
+                os_log(.error, "Unexpected status code of: %{public}d, for: %{public}@", response.statusCode, originalRequestURL)
+                foregroundCompletionHandler?(.failure(.unexpectedStatusCode))
+                return
+            }
+            
+            os_log(.info, "Download successful for: %{public}@", originalRequestURL)
+            
+            guard let saveDownloadToURL = UserDefaults.standard.url(forKey: originalRequestURL) else {
                 os_log(.error, "Unable to find existing download item for: %{public}@", originalRequestURL)
                 foregroundCompletionHandler?(.failure(.missingInstructionsError))
                 
@@ -101,8 +116,14 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
         }
     }
     
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    func urlSession(_ session: URLSession,
+                    task: URLSessionTask,
+                    didCompleteWithError error: Error?) {
         queue.async { [weak self] in
+            guard let error = error else {
+                return
+            }
+            
             guard let originalRequestURL = task.originalRequest?.url?.absoluteString else {
                 os_log(.error, "Unexpected nil URL")
                 
@@ -111,20 +132,12 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
             
             defer {
                 self?.foregroundCompletionHandlers[originalRequestURL] = nil
-                self?.userDefaults.removeObject(forKey: originalRequestURL)
+                UserDefaults.standard.removeObject(forKey: originalRequestURL)
             }
             
             os_log(.info, "Download failed for: %{public}@", originalRequestURL)
             
             let foregroundCompletionHandler = self?.foregroundCompletionHandlers[originalRequestURL]
-            
-            guard let error = error else {
-                os_log(.error, "Unknown error caused download to fail for: %{public}@", originalRequestURL)
-                foregroundCompletionHandler?(.failure(.unknownError))
-                
-                return
-            }
-            
             foregroundCompletionHandler?(.failure(.networkError(error)))
         }
     }
