@@ -19,6 +19,7 @@
 		438F85472D6E241D00AF956D /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438F85442D6E241D00AF956D /* ImageLoader.swift */; };
 		438F85482D6E241D00AF956D /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438F85452D6E241D00AF956D /* NetworkService.swift */; };
 		438F85492D6E241D00AF956D /* BackgroundDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438F85462D6E241D00AF956D /* BackgroundDownloadService.swift */; };
+		43DAF0CE2D8C75D3005900E7 /* BackgroundDownloadStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DAF0CD2D8C75D3005900E7 /* BackgroundDownloadStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		438F85442D6E241D00AF956D /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		438F85452D6E241D00AF956D /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		438F85462D6E241D00AF956D /* BackgroundDownloadService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadService.swift; sourceTree = "<group>"; };
+		43DAF0CD2D8C75D3005900E7 /* BackgroundDownloadStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +192,7 @@
 				438F85442D6E241D00AF956D /* ImageLoader.swift */,
 				438F85452D6E241D00AF956D /* NetworkService.swift */,
 				438F85462D6E241D00AF956D /* BackgroundDownloadService.swift */,
+				43DAF0CD2D8C75D3005900E7 /* BackgroundDownloadStore.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 				43896B7A2D6906CE00FF34F8 /* CatCollectionViewCell.swift in Sources */,
 				3DEAF27720947086004FE44E /* AppDelegate.swift in Sources */,
 				438F85472D6E241D00AF956D /* ImageLoader.swift in Sources */,
+				43DAF0CE2D8C75D3005900E7 /* BackgroundDownloadStore.swift in Sources */,
 				438F85492D6E241D00AF956D /* BackgroundDownloadService.swift in Sources */,
 				3DEAF2AA20948C8A004FE44E /* NSObject+Name.swift in Sources */,
 				43896B7B2D6906CE00FF34F8 /* CatsViewController.swift in Sources */,

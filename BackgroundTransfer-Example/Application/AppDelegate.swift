@@ -48,7 +48,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: - Background
     
-    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
-        BackgroundDownloadService.shared.backgroundCompletionHandler = completionHandler
+    func application(_ application: UIApplication, 
+                     handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        BackgroundDownloadService().backgroundCompletionHandler = completionHandler
     }
 }

@@ -9,7 +9,7 @@
 import Foundation
 import os
 
-enum BackgroundDownloadServiceError: Error {
+enum BackgroundDownloadError: Error {
     case missingInstructionsError
     case fileSystemError(_ underlyingError: Error)
     case networkError(_ underlyingError: Error?)
@@ -21,10 +21,7 @@ class BackgroundDownloadService: NSObject {
     var backgroundCompletionHandler: (() -> Void)?
     
     private var session: URLSession!
-    
-    private var foregroundCompletionHandlers = [String: ((result: Result<URL, BackgroundDownloadServiceError>) -> ())]()
-        
-    private let queue = DispatchQueue(label: "com.williamboles.background.download.service")
+    private let store = BackgroundDownloadStore()
     
     // MARK: - Singleton
     
@@ -32,9 +29,13 @@ class BackgroundDownloadService: NSObject {
     
     // MARK: - Init
     
-    private override init() {
+    override init() {
         super.init()
         
+        configureSession()
+    }
+    
+    private func configureSession() {
         let configuration = URLSessionConfiguration.background(withIdentifier: "com.williamboles.background.download.session")
         configuration.sessionSendsLaunchEvents = true
         let session = URLSession(configuration: configuration,
@@ -47,71 +48,67 @@ class BackgroundDownloadService: NSObject {
     
     func download(from remoteURL: URL,
                   saveDownloadTo localURL: URL,
-                  completionHandler: @escaping ((_ result: Result<URL, BackgroundDownloadServiceError>) -> ())) {
-        queue.async { [weak self] in
-            os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
-            
-            self?.foregroundCompletionHandlers[remoteURL.absoluteString] = completionHandler
-            UserDefaults.standard.set(localURL, forKey: remoteURL.absoluteString)
-            
-            let task = self?.session.downloadTask(with: remoteURL)
-            task?.earliestBeginDate = Date().addingTimeInterval(2) // Remove this in production, the delay was added for demonstration purposes only
-            task?.resume()
-        }
+                  completionHandler: @escaping BackgroundDownloadCompletion) {
+        os_log(.info, "Scheduling to download: %{public}@", remoteURL.absoluteString)
+        
+        store.storeMetadata(from: remoteURL,
+                            to: localURL,
+                            completionHandler: completionHandler)
+
+        let task = session.downloadTask(with: remoteURL)
+        task.earliestBeginDate = Date().addingTimeInterval(2) // Remove this in production, the delay was added for demonstration purposes only
+        task.resume()
     }
 }
 
 // MARK: - URLSessionDownloadDelegate
 
 extension BackgroundDownloadService: URLSessionDownloadDelegate {
-    func urlSession(_ session: URLSession, 
+    func urlSession(_ session: URLSession,
                     downloadTask: URLSessionDownloadTask,
                     didFinishDownloadingTo location: URL) {
-        queue.sync {
-            guard let originalRequestURL = downloadTask.originalRequest?.url?.absoluteString else {
-                os_log(.error, "Unexpected nil URL")
-                // Unable to call the closure here as we use originalRequestURL as the key to retrieve the closure
-                
+        guard let fromURL = downloadTask.originalRequest?.url else {
+            os_log(.error, "Unexpected nil URL")
+            // Unable to call the closure here as we use originalRequestURL as the key to retrieve the closure
+            return
+        }
+        
+        defer {
+            store.removeMetadata(for: fromURL)
+        }
+        
+        let fromURLAbsoluteString = fromURL.absoluteString
+        
+        os_log(.info, "Download request completed for: %{public}@", fromURLAbsoluteString)
+        
+        store.retrieveMetadata(for: fromURL) { toURL, completionHandler in
+            guard let toURL else {
+                os_log(.error, "Unable to find existing download item for: %{public}@", fromURLAbsoluteString)
+                completionHandler?(.failure(BackgroundDownloadError.missingInstructionsError))
                 return
             }
             
-            defer {
-                self.foregroundCompletionHandlers[originalRequestURL] = nil
-                UserDefaults.standard.removeObject(forKey: originalRequestURL)
-            }
-            
-            os_log(.info, "Download request completed for: %{public}@", originalRequestURL)
-            
-            let foregroundCompletionHandler = self.foregroundCompletionHandlers[originalRequestURL]
-            
             guard let response = downloadTask.response as? HTTPURLResponse else {
-                os_log(.error, "Unexpected response for: %{public}@", originalRequestURL)
-                foregroundCompletionHandler?(.failure(.unexpectedResponseError))
+                os_log(.error, "Unexpected response for: %{public}@", fromURLAbsoluteString)
+                completionHandler?(.failure(BackgroundDownloadError.unexpectedResponseError))
                 return
             }
             
             guard response.statusCode == 200 else {
-                os_log(.error, "Unexpected status code of: %{public}d, for: %{public}@", response.statusCode, originalRequestURL)
-                foregroundCompletionHandler?(.failure(.unexpectedStatusCode))
+                os_log(.error, "Unexpected status code of: %{public}d, for: %{public}@", response.statusCode, fromURLAbsoluteString)
+                completionHandler?(.failure(BackgroundDownloadError.unexpectedStatusCode))
                 return
             }
             
-            os_log(.info, "Download successful for: %{public}@", originalRequestURL)
-            
-            guard let saveDownloadToURL = UserDefaults.standard.url(forKey: originalRequestURL) else {
-                os_log(.error, "Unable to find existing download item for: %{public}@", originalRequestURL)
-                foregroundCompletionHandler?(.failure(.missingInstructionsError))
-                
-                return
-            }
+            os_log(.info, "Download successful for: %{public}@", fromURLAbsoluteString)
             
             do {
                 try FileManager.default.moveItem(at: location,
-                                                 to: saveDownloadToURL)
+                                                 to: toURL)
                 
-                foregroundCompletionHandler?(.success(saveDownloadToURL))
+                completionHandler?(.success(toURL))
             } catch {
-                foregroundCompletionHandler?(.failure(.fileSystemError(error)))
+                completionHandler?(.failure(BackgroundDownloadError.fileSystemError(error)))
             }
         }
     }
@@ -119,26 +116,25 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
                     didCompleteWithError error: Error?) {
-        queue.async { [weak self] in
-            guard let error = error else {
-                return
-            }
-            
-            guard let originalRequestURL = task.originalRequest?.url?.absoluteString else {
-                os_log(.error, "Unexpected nil URL")
-                
-                return
-            }
-            
-            defer {
-                self?.foregroundCompletionHandlers[originalRequestURL] = nil
-                UserDefaults.standard.removeObject(forKey: originalRequestURL)
-            }
-            
-            os_log(.info, "Download failed for: %{public}@", originalRequestURL)
-            
-            let foregroundCompletionHandler = self?.foregroundCompletionHandlers[originalRequestURL]
-            foregroundCompletionHandler?(.failure(.networkError(error)))
+        guard let error = error else {
+            return
+        }
+        
+        guard let fromURL = task.originalRequest?.url else {
+            os_log(.error, "Unexpected nil URL")
+            return
+        }
+        
+        defer {
+            store.removeMetadata(for: fromURL)
+        }
+        
+        let fromURLAbsoluteString = fromURL.absoluteString
+        
+        os_log(.info, "Download failed for: %{public}@", fromURLAbsoluteString)
+        
+        store.retrieveMetadata(for: fromURL) { _, completionHandler in
+            completionHandler?(.failure(BackgroundDownloadError.networkError(error)))
         }
     }
     
