@@ -12,9 +12,8 @@ import os
 enum BackgroundDownloadError: Error {
     case missingInstructionsError
     case fileSystemError(_ underlyingError: Error)
-    case networkError(_ underlyingError: Error?)
-    case unexpectedResponseError
-    case unexpectedStatusCode
+    case clientError(_ underlyingError: Error)
+    case serverError(_ underlyingResponse: URLResponse?)
 }
 
 class BackgroundDownloadService: NSObject {
@@ -88,15 +87,10 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
                 return
             }
             
-            guard let response = downloadTask.response as? HTTPURLResponse else {
+            guard let response = downloadTask.response as? HTTPURLResponse, 
+                        response.statusCode == 200 else {
                 os_log(.error, "Unexpected response for: %{public}@", fromURLAbsoluteString)
-                completionHandler?(.failure(BackgroundDownloadError.unexpectedResponseError))
-                return
-            }
-            
-            guard response.statusCode == 200 else {
-                os_log(.error, "Unexpected status code of: %{public}d, for: %{public}@", response.statusCode, fromURLAbsoluteString)
-                completionHandler?(.failure(BackgroundDownloadError.unexpectedStatusCode))
+                completionHandler?(.failure(BackgroundDownloadError.serverError(downloadTask.response)))
                 return
             }
             
@@ -134,7 +128,7 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
         os_log(.info, "Download failed for: %{public}@", fromURLAbsoluteString)
         
         store.retrieveMetadata(for: fromURL) { _, completionHandler in
-            completionHandler?(.failure(BackgroundDownloadError.networkError(error)))
+            completionHandler?(.failure(BackgroundDownloadError.clientError(error)))
         }
     }
     
