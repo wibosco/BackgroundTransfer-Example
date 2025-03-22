@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import os
 
 typealias BackgroundDownloadCompletion = (_ result: Result<URL, Error>) -> ()
 
@@ -24,7 +23,7 @@ class BackgroundDownloadStore {
     func storeMetadata(from fromURL: URL,
                        to toURL: URL,
                        completionHandler: @escaping BackgroundDownloadCompletion) {
-        queue.async { [weak self] in
+        queue.async(flags: .barrier) { [weak self] in
             self?.inMemoryStore[fromURL.absoluteString] = completionHandler
             self?.persistentStore.set(toURL, forKey: fromURL.absoluteString)
         }
@@ -33,8 +32,8 @@ class BackgroundDownloadStore {
     // MARK: - Retrieve
     
     func retrieveMetadata(for forURL: URL, 
-                          completionHandler: ((URL?, BackgroundDownloadCompletion?) -> ())) {
-        return queue.sync(flags: .barrier) { [weak self] in
+                          completionHandler: @escaping ((URL?, BackgroundDownloadCompletion?) -> ())) {
+        return queue.async { [weak self] in
             let key = forURL.absoluteString
             
             let toURL = self?.persistentStore.url(forKey: key)
@@ -47,7 +46,7 @@ class BackgroundDownloadStore {
     // MARK: - Remove
     
     func removeMetadata(for forURL: URL) {
-        queue.async { [weak self] in
+        queue.async(flags: .barrier) { [weak self] in
             let key = forURL.absoluteString
             
             self?.inMemoryStore[key] = nil
