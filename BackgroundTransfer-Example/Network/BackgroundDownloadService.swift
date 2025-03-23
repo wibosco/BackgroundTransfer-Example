@@ -123,9 +123,9 @@ extension BackgroundDownloadService: URLSessionDownloadDelegate {
             return
         }
         
-        let fromURLAaString = fromURL.absoluteString
+        let fromURLAsString = fromURL.absoluteString
         
-        os_log(.info, "Download failed for: %{public}@", fromURLAaString)
+        os_log(.info, "Download failed for: %{public}@", fromURLAsString)
         
         store.retrieveMetadata(for: fromURL) { [weak self] _, completionHandler in
             completionHandler?(.failure(BackgroundDownloadError.clientError(error)))
