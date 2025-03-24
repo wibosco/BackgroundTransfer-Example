@@ -2,8 +2,8 @@
 //  BackgroundDownloadStore.swift
 //  BackgroundTransfer-Example
 //
-//  Created by William Boles on 20/03/2025.
-//  Copyright © 2025 William Boles. All rights reserved.
+//  Created by William Boles on 02/05/2018.
+//  Copyright © 2018 William Boles. All rights reserved.
 //
 
 import Foundation
