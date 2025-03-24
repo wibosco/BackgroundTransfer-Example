@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Foundation
 import os
 
 @UIApplicationMain
@@ -26,6 +27,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
+        os_log(.info, "Downloaded content will be saved to: %{public}@", FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].absoluteString)
+        
         //Exit app to test restoring app from a terminated state. Comment out to test restoring app from a suspended state.
         DispatchQueue.main.asyncAfter(deadline: .now()) {
             os_log(.info, "Simulating app termination by exit(0)")
@@ -48,7 +51,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: - Background
     
-    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
-        BackgroundDownloadService.shared.backgroundCompletionHandler = completionHandler
+    func application(_ application: UIApplication, 
+                     handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        BackgroundDownloadService().backgroundCompletionHandler = completionHandler
     }
 }
