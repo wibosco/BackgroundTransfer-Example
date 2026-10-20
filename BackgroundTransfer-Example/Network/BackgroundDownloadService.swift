@@ -28,7 +28,7 @@ class BackgroundDownloadService: NSObject {
     
     // MARK: - Init
     
-    override init() {
+    private override init() {
         super.init()
         
         configureSession()
